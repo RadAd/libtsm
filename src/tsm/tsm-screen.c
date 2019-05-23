@@ -277,9 +277,10 @@ static void screen_scroll_up(struct tsm_screen *con, unsigned int num)
 	 * also be small enough so we do not get stack overflows. */
 	if (num > 128) {
 		screen_scroll_up(con, 128);
-		return screen_scroll_up(con, num - 128);
+		screen_scroll_up(con, num - 128);
+		return;
 	}
-	struct line *cache[num];
+	struct line **cache = malloc(sizeof(struct line *) * num);
 
 	for (i = 0; i < num; ++i) {
 		pos = con->margin_top + i;
@@ -326,6 +327,8 @@ static void screen_scroll_up(struct tsm_screen *con, unsigned int num)
 			}
 		}
 	}
+
+	free(cache);
 }
 
 static void screen_scroll_down(struct tsm_screen *con, unsigned int num)
@@ -345,9 +348,10 @@ static void screen_scroll_down(struct tsm_screen *con, unsigned int num)
 	/* see screen_scroll_up() for an explanation */
 	if (num > 128) {
 		screen_scroll_down(con, 128);
-		return screen_scroll_down(con, num - 128);
+		screen_scroll_down(con, num - 128);
+		return;
 	}
-	struct line *cache[num];
+	struct line **cache = malloc(sizeof(struct line *) * num);
 
 	for (i = 0; i < num; ++i) {
 		cache[i] = con->lines[con->margin_bottom - i];
@@ -370,6 +374,8 @@ static void screen_scroll_down(struct tsm_screen *con, unsigned int num)
 		if (!con->sel_end.line && con->sel_end.y >= 0)
 			con->sel_end.y += num;
 	}
+
+	free(cache);
 }
 
 static void screen_write(struct tsm_screen *con, unsigned int x,
@@ -1352,7 +1358,7 @@ void tsm_screen_insert_lines(struct tsm_screen *con, unsigned int num)
 	if (num > max)
 		num = max;
 
-	struct line *cache[num];
+	struct line **cache = malloc(sizeof(struct line *) * num);
 
 	for (i = 0; i < num; ++i) {
 		cache[i] = con->lines[con->margin_bottom - i];
@@ -1370,6 +1376,7 @@ void tsm_screen_insert_lines(struct tsm_screen *con, unsigned int num)
 	}
 
 	con->cursor_x = 0;
+	free(cache);
 }
 
 SHL_EXPORT
@@ -1392,7 +1399,7 @@ void tsm_screen_delete_lines(struct tsm_screen *con, unsigned int num)
 	if (num > max)
 		num = max;
 
-	struct line *cache[num];
+	struct line **cache = malloc(sizeof(struct line *) * num);
 
 	for (i = 0; i < num; ++i) {
 		cache[i] = con->lines[con->cursor_y + i];
@@ -1410,6 +1417,7 @@ void tsm_screen_delete_lines(struct tsm_screen *con, unsigned int num)
 	}
 
 	con->cursor_x = 0;
+	free(cache);
 }
 
 SHL_EXPORT
