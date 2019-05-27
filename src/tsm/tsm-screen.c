@@ -919,6 +919,32 @@ void tsm_screen_sb_reset(struct tsm_screen *con)
 }
 
 SHL_EXPORT
+int tsm_screen_sb_count(struct tsm_screen *con)
+{
+	if (!con)
+		return 0;
+
+	return con->sb_count;
+}
+
+SHL_EXPORT
+int tsm_screen_sb_depth(struct tsm_screen *con)
+{
+	int d = 0;
+
+	if (!con)
+		return d;
+
+	struct line *sb = con->sb_pos;
+	while (sb) {
+		++d;
+		sb = sb->next;
+	}
+
+	return d;
+}
+
+SHL_EXPORT
 void tsm_screen_set_def_attr(struct tsm_screen *con,
 				 const struct tsm_screen_attr *attr)
 {
